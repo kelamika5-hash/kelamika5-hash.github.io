@@ -34,10 +34,9 @@
             gap: 20px;
             opacity: 0;
             transition: opacity 0.5s ease-in-out;
-            align-items: flex-start; /* Verhindert das automatische in-die-Länge-Ziehen auf Desktop */
+            align-items: flex-start;
         }
 
-        /* Chart Bereich */
         .chart-section {
             flex: 2;
             background-color: var(--box-bg);
@@ -48,14 +47,12 @@
             width: 100%;
         }
 
-        /* NEU: Wrapper, um die Höhe auf dem Laptop zu kontrollieren */
         .chart-wrapper {
             position: relative;
-            height: 500px; /* Klassische Desktop-Höhe */
+            height: 500px; 
             width: 100%;
         }
 
-        /* Dropzone Styling */
         .dropzone {
             border: 3px dashed transparent;
             transition: border-color 0.3s, background-color 0.3s;
@@ -67,7 +64,6 @@
             background-color: rgba(52, 152, 219, 0.05);
         }
 
-        /* Aufgaben Bereich */
         .task-section {
             flex: 1;
             background-color: var(--box-bg);
@@ -100,7 +96,7 @@
             display: flex;
             gap: 10px;
             margin-top: 15px;
-            flex-wrap: wrap; /* Für kleine Bildschirme */
+            flex-wrap: wrap; 
         }
 
         button {
@@ -113,7 +109,7 @@
             font-weight: bold;
             font-size: 14px;
             transition: background-color 0.2s;
-            flex-grow: 1; /* Button nutzt den verfügbaren Platz auf Handys */
+            flex-grow: 1; 
         }
         button:hover { background-color: #2980b9; }
         
@@ -131,9 +127,9 @@
             border-radius: 0 5px 5px 0;
             margin-top: 10px;
             font-size: 0.95rem;
+            line-height: 1.5;
         }
 
-        /* Drag & Drop Elemente */
         .draggable-items {
             display: flex;
             flex-direction: column;
@@ -149,7 +145,7 @@
             font-weight: bold;
             font-size: 14px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            touch-action: none; /* Wichtig für Touch-Drag */
+            touch-action: none; 
             user-select: none;
         }
         .drag-item:active { cursor: grabbing; }
@@ -160,8 +156,7 @@
         #drag-wind { background-color: #42a5f5; }     
         #drag-pv { background-color: #ffca28; color: #333; }
 
-        /* Modal (Startbildschirm) */
-        #welcome-overlay {
+        .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.8);
@@ -170,6 +165,7 @@
             align-items: center;
             z-index: 1000;
         }
+        
         .modal-content {
             background-color: white;
             padding: 40px;
@@ -177,34 +173,36 @@
             text-align: center;
             max-width: 550px;
             width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
         }
 
-        /* Anpassungen für Handys & Tablets (Responsive Design) */
         @media (max-width: 900px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                flex-direction: column; /* Boxen untereinander statt nebeneinander */
-            }
-            .chart-wrapper {
-                height: 400px; /* Angepasste, feste Höhe fürs Handy */
-            }
-            .modal-content {
-                padding: 20px;
-                width: 90%;
-            }
+            body { padding: 10px; }
+            .container { flex-direction: column; }
+            .chart-wrapper { height: 400px; }
+            .modal-content { padding: 20px; width: 90%; }
         }
     </style>
 </head>
 <body>
 
-    <div id="welcome-overlay">
+    <div id="welcome-overlay" class="overlay">
         <div class="modal-content">
             <h1>Herzlich Willkommen!</h1>
             <p>Auf diesem Graphen wird die <strong>Last</strong> (der Strombedarf) in Deutschland an einem beispielhaften Tag dargestellt (in Gigawatt). Die X-Achse zeigt die 24 Stunden eines Tages.</p>
             <p>Löse die Aufgaben, um zu verstehen, wie unser Stromnetz funktioniert!</p>
-            <button onclick="startGame()">OK, los geht's!</button>
+            <button onclick="startGame()" style="width: 100%;">OK, los geht's!</button>
+        </div>
+    </div>
+
+    <div id="final-overlay" class="overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Super!</h2>
+            <p>Die Aufgabe ist abgeschlossen und du kannst nun wieder zum Workbook zurückkehren.</p>
+            <p>Viel Spaß weiterhin beim Lernen über <strong>Grid & Storage</strong>!</p>
         </div>
     </div>
 
@@ -221,7 +219,7 @@
             </div>
             
             <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 10px;">
-                (Ziehe in Aufgabe 2 die Erzeugungsprofile per Drag & Drop hierhin oder tippe sie an)
+                (Ziehe in Aufgabe 1 die Erzeugungsprofile per Drag & Drop hierhin oder tippe sie an)
             </p>
         </div>
 
@@ -229,19 +227,6 @@
             
             <div id="task-1" class="task active">
                 <h3>Aufgabe 1</h3>
-                <p>Betrachte die rote Lastkurve links im Graphen.</p>
-                <p><strong>Frage:</strong> Warum ist die Last mittags so hoch und warum gibt es abends noch mal einen Ausschlag?</p>
-                <button onclick="showSolution(1)" style="align-self: flex-start;">Lösung anzeigen</button>
-                <div id="solution-1" class="solution-box">
-                    <strong>Lösung:</strong> Mittags laufen Industrie, Büros und Schulen auf Hochtouren. Außerdem wird in vielen Haushalten gekocht. Abends kommen die Menschen nach Hause, schalten das Licht, Fernseher und andere Geräte ein.
-                </div>
-                <div class="button-group" id="next-group-1" style="display:none;">
-                    <button onclick="switchTask(2)">Weiter zu Aufgabe 2</button>
-                </div>
-            </div>
-
-            <div id="task-2" class="task">
-                <h3>Aufgabe 2</h3>
                 <p>Ziehe die Erzeugungsprofile in das Diagramm (oder tippe sie am Smartphone an), um die Last zu decken. <strong>Sie addieren sich aufeinander auf!</strong></p>
                 
                 <div class="draggable-items">
@@ -258,10 +243,22 @@
                         Windenergie
                     </div>
                     <div class="drag-item" id="drag-pv" draggable="true" ondragstart="drag(event)">
-                        Photovoltaik (Solar)
+                        Photovoltaik
                     </div>
                 </div>
                 
+                <div class="button-group" id="next-group-1" style="display:none;">
+                    <button onclick="switchTask(2)">Weiter zu Aufgabe 2</button>
+                </div>
+            </div>
+
+            <div id="task-2" class="task">
+                <h3>Aufgabe 2</h3>
+                <p><strong>Frage:</strong> Handelt es sich um einen Tag im Sommer oder im Winter? Begründe deine Antwort.</p>
+                <button onclick="showSolution(2)" style="align-self: flex-start;">Lösung anzeigen</button>
+                <div id="solution-2" class="solution-box">
+                    <strong>Lösung:</strong> Es handelt sich um einen <strong>Sommertag</strong>. Das erkennst du an dem riesigen Berg aus PV-Strom in der Mitte. Außerdem scheint die Sonne an diesem Tag sehr lange: Die Stromerzeugung beginnt schon um 6 Uhr morgens und endet erst um 21:30 Uhr.
+                </div>
                 <div class="button-group" id="next-group-2" style="display:none;">
                     <button class="btn-back" onclick="switchTask(1)">Zurück</button>
                     <button onclick="switchTask(3)">Weiter zu Aufgabe 3</button>
@@ -270,10 +267,11 @@
 
             <div id="task-3" class="task">
                 <h3>Aufgabe 3</h3>
-                <p><strong>Frage:</strong> Zur Mittagszeit sehen wir nun, dass mehr Strom produziert wird, als gebraucht wird (die bunten Flächen übersteigen die rote Linie der Last). Was können wir mit diesem überschüssigen Strom machen?</p>
+                <p>Betrachte die <strong>schwarze Lastkurve</strong> im Graphen.</p>
+                <p><strong>Frage:</strong> Warum ist am Tag ein höherer Strombedarf als in der Nacht zwischen 0 Uhr und 5 Uhr?</p>
                 <button onclick="showSolution(3)" style="align-self: flex-start;">Lösung anzeigen</button>
                 <div id="solution-3" class="solution-box">
-                    <strong>Lösung:</strong> Speichern! Wir können den Strom nutzen, um Wasser in Pumpspeicherkraftwerken nach oben zu pumpen, ihn in großen Batterien zu speichern oder Wasserstoff herzustellen.
+                    <strong>Lösung:</strong> In der Nacht schlafen die meisten Menschen. Große Gebäude wie Fabriken, Büros und Schulen sind geschlossen, und zu Hause bleiben Licht und Fernseher aus. Am Tag wachen die Menschen auf, die Arbeit beginnt und alle elektrischen Geräte laufen gleichzeitig.
                 </div>
                 <div class="button-group" id="next-group-3" style="display:none;">
                     <button class="btn-back" onclick="switchTask(2)">Zurück</button>
@@ -283,14 +281,28 @@
 
             <div id="task-4" class="task">
                 <h3>Aufgabe 4</h3>
-                <p><strong>Frage:</strong> Warum ist der Börsenpreis für Strom mittags früher häufig am höchsten gewesen und mittlerweile häufig am günstigsten?</p>
+                <p>Wir haben gelernt, dass Stromerzeugung und Bedarf immer im Gleichgewicht sein müssen.</p>
+                <p><strong>Frage:</strong> Wie funktioniert es, dass mittags mehr Erzeugung als Bedarf da ist? Und was passiert in den Zeiten, wo mehr Bedarf als Erzeugung herrscht?</p>
                 <button onclick="showSolution(4)" style="align-self: flex-start;">Lösung anzeigen</button>
                 <div id="solution-4" class="solution-box">
-                    <strong>Lösung:</strong> Früher bestimmte nur die hohe Last (Nachfrage) am Mittag den Preis (hohe Last = hoher Preis). Heute speisen mittags die vielen PV-Anlagen (Solar) massiv Strom ein. Dadurch ist das Angebot oft deutlich größer als die Last (Überschuss), was den Preis stark sinken lässt.
+                    <strong>Lösung:</strong> Wenn wir mittags zu viel Strom haben, speichern wir ihn oder verkaufen ihn ins Ausland. <em>(Hinweis: Die genauen Speichermöglichkeiten lernen wir in Kapitel 3 kennen!)</em> <br><br> Wenn der Bedarf höher ist als die eigene Erzeugung, holen wir den Strom aus den Speichern zurück oder wir importieren ihn aus dem Ausland.
                 </div>
                 <div class="button-group" id="next-group-4" style="display:none;">
                     <button class="btn-back" onclick="switchTask(3)">Zurück</button>
-                    <button class="btn-success" onclick="alert('Klasse! Du hast das Workbook erfolgreich abgeschlossen.')">Spiel beenden</button>
+                    <button onclick="switchTask(5)">Weiter zu Aufgabe 5</button>
+                </div>
+            </div>
+
+            <div id="task-5" class="task">
+                <h3>Aufgabe 5 (Exkurs)</h3>
+                <p><strong>Frage:</strong> Was könnte man machen, um die PV-Erzeugungskurve ein wenig abzuflachen, damit sich die PV-Stromerzeugung besser über den Tag verteilt?</p>
+                <button onclick="showSolution(5)" style="align-self: flex-start;">Lösung anzeigen</button>
+                <div id="solution-5" class="solution-box">
+                    <strong>Lösung:</strong> Man kann die Photovoltaik-Anlagen in verschiedene Richtungen aufstellen (z. B. nach Osten und Westen statt nur nach Süden). Dadurch fangen sie morgens und abends mehr Sonne ein. <br><br> Außerdem hilft es, die Anlagen weit über Deutschland zu verteilen. Da das Wetter regional unterschiedlich ist, flacht das die extreme Erzeugungsspitze ab. Dieser Wetter-Trick funktioniert bei der Windenergie übrigens noch deutlich besser, da der Wind lokal viel stärker schwankt!
+                </div>
+                <div class="button-group" id="next-group-5" style="display:none;">
+                    <button class="btn-back" onclick="switchTask(4)">Zurück</button>
+                    <button class="btn-success" onclick="finishGame()">Aufgabe abschließen</button>
                 </div>
             </div>
 
@@ -313,7 +325,7 @@
         const datasetKohle = { label: 'Kohle (Braun & Stein)', data: kohleData, borderColor: '#4e342e', backgroundColor: '#4e342e', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
         const datasetGas = { label: 'Gaskraftwerke', data: gasData, borderColor: '#f57c00', backgroundColor: '#f57c00', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
         const datasetWind = { label: 'Windenergie', data: windData, borderColor: '#42a5f5', backgroundColor: '#42a5f5', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-        const datasetPV = { label: 'PV (Solar)', data: pvData, borderColor: '#ffca28', backgroundColor: '#ffca28', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+        const datasetPV = { label: 'Photovoltaik', data: pvData, borderColor: '#ffca28', backgroundColor: '#ffca28', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
 
         // --- 2. CHART.JS INITIALISIERUNG ---
         let ctx = document.getElementById('energyChart').getContext('2d');
@@ -322,7 +334,7 @@
             data: { labels: labelsHours, datasets: [datasetLast] },
             options: {
                 responsive: true,
-                maintainAspectRatio: false, /* Behält die im Wrapper definierte Höhe */
+                maintainAspectRatio: false, 
                 interaction: { mode: 'index', intersect: false },
                 scales: {
                     x: { title: { display: true, text: 'Uhrzeit (0 - 24 Uhr)' } },
@@ -342,6 +354,11 @@
         function startGame() {
             document.getElementById('welcome-overlay').style.display = 'none';
             document.getElementById('main-container').style.opacity = '1';
+        }
+
+        // Modifiziert: Zeigt die Abschlussseite ohne Bild
+        function finishGame() {
+            document.getElementById('final-overlay').style.display = 'flex';
         }
 
         function showSolution(taskNumber) {
@@ -373,7 +390,7 @@
                 droppedCount++;
                 
                 if(droppedCount === 5) {
-                    document.getElementById('next-group-2').style.display = 'flex';
+                    document.getElementById('next-group-1').style.display = 'flex';
                 }
             }
         }
