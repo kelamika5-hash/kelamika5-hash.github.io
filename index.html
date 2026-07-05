@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strombedarf und Erzeugung in Deutschland</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #34495e;
+            --accent: #3498db;
+            --success: #27ae60;
+            --grey: #95a5a6;
+            --bg-color: #f4f6f7;
+            --box-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--primary);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            max-width: 1400px;
+            gap: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            align-items: flex-start;
+        }
+
+        .chart-section {
+            flex: 2;
+            background-color: var(--box-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            width: 100%;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 500px; 
+            width: 100%;
+        }
+
+        .dropzone {
+            border: 3px dashed transparent;
+            transition: border-color 0.3s, background-color 0.3s;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .dropzone.dragover {
+            border-color: var(--accent);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+
+        .task-section {
+            flex: 1;
+            background-color: var(--box-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem; }
+        
+        .task {
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .task.active {
+            display: flex;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap; 
+        }
+
+        button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            flex-grow: 1; 
+        }
+        button:hover { background-color: #2980b9; }
+        
+        .btn-back { background-color: var(--grey); }
+        .btn-back:hover { background-color: #7f8c8d; }
+        
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #219653; }
+
+        .solution-box {
+            display: none;
+            background-color: #e8f8f5;
+            border-left: 4px solid var(--success);
+            padding: 10px 15px;
+            border-radius: 0 5px 5px 0;
+            margin-top: 10px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .draggable-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .drag-item {
+            padding: 12px;
+            color: white;
+            border-radius: 5px;
+            cursor: grab;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            touch-action: none; 
+            user-select: none;
+        }
+        .drag-item:active { cursor: grabbing; }
+        
+        #drag-biomasse { background-color: #2e7d32; }
+        #drag-kohle { background-color: #4e342e; }   
+        #drag-gas { background-color: #f57c00; }      
+        #drag-wind { background-color: #42a5f5; }     
+        #drag-pv { background-color: #ffca28; color: #333; }
+
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 550px;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        @media (max-width: 900px) {
+            body { padding: 10px; }
+            .container { flex-direction: column; }
+            .chart-wrapper { height: 400px; }
+            .modal-content { padding: 20px; width: 90%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="welcome-overlay" class="overlay">
+        <div class="modal-content">
+            <h1>Herzlich Willkommen!</h1>
+            <p>Auf diesem Graphen wird die <strong>Last</strong> (der Strombedarf) in Deutschland an einem beispielhaften Tag dargestellt (in Gigawatt). Die X-Achse zeigt die 24 Stunden eines Tages.</p>
+            <p>Löse die Aufgaben, um zu verstehen, wie unser Stromnetz funktioniert!</p>
+            <button onclick="startGame()" style="width: 100%;">OK, los geht's!</button>
+        </div>
+    </div>
+
+    <div id="final-overlay" class="overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Super!</h2>
+            <p>Die Aufgabe ist abgeschlossen und du kannst nun wieder zum Workbook zurückkehren.</p>
+            <p>Viel Spaß weiterhin beim Lernen über <strong>Grid & Storage</strong>!</p>
+        </div>
+    </div>
+
+    <div class="container" id="main-container">
+        
+        <div class="chart-section dropzone" id="chart-dropzone" 
+             ondragover="allowDrop(event)" 
+             ondragleave="dragLeave(event)" 
+             ondrop="drop(event)">
+            <h2>Last (Strombedarf) und Erzeugung (Deutschland) in GW</h2>
+            
+            <div class="chart-wrapper">
+                <canvas id="energyChart"></canvas>
+            </div>
+            
+            <p style="text-align: center; color: #7f8c8d; font-size: 12px; margin-top: 10px;">
+                (Ziehe in Aufgabe 1 die Erzeugungsprofile per Drag & Drop hierhin oder tippe sie an)
+            </p>
+        </div>
+
+        <div class="task-section">
+            
+            <div id="task-1" class="task active">
+                <h3>Aufgabe 1</h3>
+                <p>Ziehe die Erzeugungsprofile in das Diagramm (oder tippe sie am Smartphone an), um die Last zu decken. <strong>Sie addieren sich aufeinander auf!</strong></p>
+                
+                <div class="draggable-items">
+                    <div class="drag-item" id="drag-biomasse" draggable="true" ondragstart="drag(event)">
+                        Biomasse
+                    </div>
+                    <div class="drag-item" id="drag-kohle" draggable="true" ondragstart="drag(event)">
+                        Kohle (Braun- & Steinkohle)
+                    </div>
+                    <div class="drag-item" id="drag-gas" draggable="true" ondragstart="drag(event)">
+                        Gaskraftwerke
+                    </div>
+                    <div class="drag-item" id="drag-wind" draggable="true" ondragstart="drag(event)">
+                        Windenergie
+                    </div>
+                    <div class="drag-item" id="drag-pv" draggable="true" ondragstart="drag(event)">
+                        Photovoltaik
+                    </div>
+                </div>
+                
+                <div class="button-group" id="next-group-1" style="display:none;">
+                    <button onclick="switchTask(2)">Weiter zu Aufgabe 2</button>
+                </div>
+            </div>
+
+            <div id="task-2" class="task">
+                <h3>Aufgabe 2</h3>
+                <p><strong>Frage:</strong> Handelt es sich um einen Tag im Sommer oder im Winter? Begründe deine Antwort.</p>
+                <button onclick="showSolution(2)" style="align-self: flex-start;">Lösung anzeigen</button>
+                <div id="solution-2" class="solution-box">
+                    <strong>Lösung:</strong> Es handelt sich um einen Sommertag. Das erkennst du zum Beispiel daran, dass die Sonne an diesem Tag sehr lange scheint: Die Stromerzeugung beginnt schon vor 6 Uhr morgens und endet erst nach 20:00 Uhr.
+                </div>
+                <div class="button-group" id="next-group-2" style="display:none;">
+                    <button class="btn-back" onclick="switchTask(1)">Zurück</button>
+                    <button onclick="switchTask(3)">Weiter zu Aufgabe 3</button>
+                </div>
+            </div>
+
+            <div id="task-3" class="task">
+                <h3>Aufgabe 3 (Exkurs)</h3>
+                <p><strong>Frage:</strong> Mittags bekommen PV-Stromproduzenten häufig wenig Geld für ihren eingespeisten Strom, weil viele Anlagen gleichzeitig einspeisen und den Preis senken. Welche Strategien haben PV-Stromproduzenten, um die maximale Produktion auf den Vormittag oder den Nachmittag zu verschieben?</p>
+                <button onclick="showSolution(3)" style="align-self: flex-start;">Lösung anzeigen</button>
+                <div id="solution-4" class="solution-box">
+                    <strong>Lösung:</strong> Viele PV-Anlagen sind nach Süden ausgerichtet, da bei dieser Orientierung über den Tag die meiste Sonneneinstrahlung auf die Module trifft und somit der höchste Gesamtertrag möglich ist. Soll die Erzeugung zeitlich verschoben werden, kann man die Module stärker nach Osten oder Westen ausrichten. Eine Ostausrichtung verlagert die höchste Stromproduktion in den Vormittag, eine Westausrichtung in den Nachmittag. Dadurch kann die Einspeisung besser an Zeiten mit höheren Strompreisen angepasst werden, was den finanziellen Ertrag und die Netzdienlichkeit erhöhen kann.
+                </div>
+                <div class="button-group" id="next-group-4" style="display:none;">
+                    <button class="btn-back" onclick="switchTask(3)">Zurück</button>
+                    <button class="btn-success" onclick="finishGame()">Aufgabe abschließen</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- 1. DATEN FÜR DEN GRAPHEN (in GW) ---
+        const labelsHours = Array.from({length: 25}, (_, i) => i); 
+        
+        // Unveränderte Lastkurve
+        const lastData = [40, 38, 36, 35, 36, 40, 45, 50, 52, 54, 55, 56, 55, 54, 53, 52, 52, 53, 55, 56, 52, 48, 45, 42, 40];
+        
+        // Angepasste Erzeugungsdaten: PV nimmt ab 16 Uhr langsamer ab und endet um 21 Uhr.
+        // Wind und Gas steigen ab 16 Uhr flacher an, damit die Summe exakt lastData deckt.
+        const biomasseData = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
+        const kohleData = [10, 10, 10, 10, 10, 10, 10, 10, 9, 8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 10, 10, 10, 10, 10, 10];
+        const gasData = [10, 9, 8, 8, 9, 11, 13, 13, 11, 10, 9, 9, 9, 9, 10, 11, 15, 16, 18, 19.5, 18.5, 17, 15, 12, 10];
+        const windData = [15, 14, 13, 12, 12, 14, 15, 16, 15, 13, 11, 10, 8, 8, 8, 10, 12, 13.5, 15, 17, 16.5, 16, 15, 15, 15];
+        const pvData = [0, 0, 0, 0, 0, 0, 2, 6, 12, 18, 22, 24, 25, 24, 22, 18, 12, 9.5, 7, 4.5, 2, 0, 0, 0, 0];
+
+        const datasetLast = { label: 'Last (Strombedarf)', data: lastData, borderColor: '#000000', backgroundColor: 'transparent', type: 'line', fill: false, borderWidth: 3, tension: 0.4, pointRadius: 0, stack: 'demand' };
+        const datasetBiomasse = { label: 'Biomasse', data: biomasseData, borderColor: '#2e7d32', backgroundColor: '#2e7d32', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+        const datasetKohle = { label: 'Kohle (Braun & Stein)', data: kohleData, borderColor: '#4e342e', backgroundColor: '#4e342e', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+        const datasetGas = { label: 'Gaskraftwerke', data: gasData, borderColor: '#f57c00', backgroundColor: '#f57c00', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+        const datasetWind = { label: 'Windenergie', data: windData, borderColor: '#42a5f5', backgroundColor: '#42a5f5', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+        const datasetPV = { label: 'Photovoltaik', data: pvData, borderColor: '#ffca28', backgroundColor: '#ffca28', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
+
+        // --- 2. CHART.JS INITIALISIERUNG ---
+        let ctx = document.getElementById('energyChart').getContext('2d');
+        let stromChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labelsHours, datasets: [datasetLast] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, 
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    x: { title: { display: true, text: 'Uhrzeit (0 - 24 Uhr)' } },
+                    y: { stacked: true, title: { display: true, text: 'Leistung in GW' }, min: 0, max: 120 }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) { return context.dataset.label + ': ' + context.parsed.y + ' GW'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- 3. SPIEL-LOGIK & STEUERUNG ---
+        function startGame() {
+            document.getElementById('welcome-overlay').style.display = 'none';
+            document.getElementById('main-container').style.opacity = '1';
+        }
+
+        function finishGame() {
+            document.getElementById('final-overlay').style.display = 'flex';
+        }
+
+        function showSolution(taskNumber) {
+            document.getElementById('solution-' + taskNumber).style.display = 'block';
+            document.getElementById('next-group-' + taskNumber).style.display = 'flex';
+        }
+
+        function switchTask(taskNumber) {
+            document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
+            document.getElementById('task-' + taskNumber).classList.add('active');
+        }
+
+        // --- 4. DRAG & DROP & TOUCH LOGIK ---
+        let droppedCount = 0;
+
+        function processDrop(dataId) {
+            let datasetToAdd = null;
+            if (dataId === 'drag-biomasse') datasetToAdd = datasetBiomasse;
+            if (dataId === 'drag-kohle') datasetToAdd = datasetKohle;
+            if (dataId === 'drag-gas') datasetToAdd = datasetGas;
+            if (dataId === 'drag-wind') datasetToAdd = datasetWind;
+            if (dataId === 'drag-pv') datasetToAdd = datasetPV;
+
+            if (datasetToAdd) {
+                stromChart.data.datasets.push(datasetToAdd);
+                stromChart.update();
+                
+                document.getElementById(dataId).style.display = 'none';
+                droppedCount++;
+                
+                if(droppedCount === 5) {
+                    document.getElementById('next-group-1').style.display = 'flex';
+                }
+            }
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function allowDrop(event) {
+            event.preventDefault(); 
+            document.getElementById('chart-dropzone').classList.add('dragover');
+        }
+
+        function dragLeave(event) {
+            document.getElementById('chart-dropzone').classList.remove('dragover');
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            document.getElementById('chart-dropzone').classList.remove('dragover');
+            let dataId = event.dataTransfer.getData("text");
+            if(dataId.startsWith('drag-')) processDrop(dataId);
+        }
+
+        let draggedElement = null;
+        const dropzone = document.getElementById('chart-dropzone');
+
+        document.querySelectorAll('.drag-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                processDrop(e.target.id);
+            });
+
+            item.addEventListener('touchstart', function(e) {
+                draggedElement = e.target;
+                e.target.style.opacity = '0.5';
+            }, {passive: false});
+
+            item.addEventListener('touchmove', function(e) {
+                e.preventDefault(); 
+                let touch = e.touches[0];
+                let rect = dropzone.getBoundingClientRect();
+                
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    dropzone.classList.add('dragover');
+                } else {
+                    dropzone.classList.remove('dragover');
+                }
+            }, {passive: false});
+
+            item.addEventListener('touchend', function(e) {
+                if (!draggedElement) return;
+                draggedElement.style.opacity = '1';
+                dropzone.classList.remove('dragover');
+                
+                let touch = e.changedTouches[0];
+                let rect = dropzone.getBoundingClientRect();
+                
+                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
+                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+                    processDrop(draggedElement.id);
+                }
+                draggedElement = null;
+            });
+        });
+    </script>
+</body>
+</html>
