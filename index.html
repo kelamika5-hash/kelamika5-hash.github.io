@@ -257,7 +257,7 @@
                 <p><strong>Frage:</strong> Handelt es sich um einen Tag im Sommer oder im Winter? Begründe deine Antwort.</p>
                 <button onclick="showSolution(2)" style="align-self: flex-start;">Lösung anzeigen</button>
                 <div id="solution-2" class="solution-box">
-                    <strong>Lösung:</strong> Es handelt sich um einen <strong>Sommertag</strong>. Das erkennst du an dem riesigen Berg aus PV-Strom in der Mitte. Außerdem scheint die Sonne an diesem Tag sehr lange: Die Stromerzeugung beginnt schon um 6 Uhr morgens und endet erst um 21:30 Uhr.
+                    <strong>Lösung:</strong> Es handelt sich um einen Sommertag. Das erkennst du zum Beispiel daran, dass die Sonne an diesem Tag sehr lange scheint: Die Stromerzeugung beginnt schon vor 6 Uhr morgens und endet erst nach 20:00 Uhr.
                 </div>
                 <div class="button-group" id="next-group-2" style="display:none;">
                     <button class="btn-back" onclick="switchTask(1)">Zurück</button>
@@ -266,196 +266,17 @@
             </div>
 
             <div id="task-3" class="task">
-                <h3>Aufgabe 3</h3>
-                <p>Betrachte die <strong>schwarze Lastkurve</strong> im Graphen.</p>
-                <p><strong>Frage:</strong> Warum ist am Tag ein höherer Strombedarf als in der Nacht zwischen 0 Uhr und 5 Uhr?</p>
+                <h3>Aufgabe 3 (Exkurs)</h3>
+                <p><strong>Frage:</strong> Mittags bekommen PV-Stromproduzenten häufig wenig Geld für ihren eingespeisten Strom, weil viele Anlagen gleichzeitig einspeisen und den Preis senken. Welche Strategien haben PV-Stromproduzenten, um die maximale Produktion auf den Vormittag oder den Nachmittag zu verschieben?</p>
                 <button onclick="showSolution(3)" style="align-self: flex-start;">Lösung anzeigen</button>
-                <div id="solution-3" class="solution-box">
-                    <strong>Lösung:</strong> In der Nacht schlafen die meisten Menschen. Große Gebäude wie Fabriken, Büros und Schulen sind geschlossen, und zu Hause bleiben Licht und Fernseher aus. Am Tag wachen die Menschen auf, die Arbeit beginnt und alle elektrischen Geräte laufen gleichzeitig.
-                </div>
-                <div class="button-group" id="next-group-3" style="display:none;">
-                    <button class="btn-back" onclick="switchTask(2)">Zurück</button>
-                    <button onclick="switchTask(4)">Weiter zu Aufgabe 4</button>
-                </div>
-            </div>
-
-            <div id="task-4" class="task">
-                <h3>Aufgabe 4</h3>
-                <p>Wir haben gelernt, dass Stromerzeugung und Bedarf immer im Gleichgewicht sein müssen.</p>
-                <p><strong>Frage:</strong> Wie funktioniert es, dass mittags mehr Erzeugung als Bedarf da ist? Und was passiert in den Zeiten, wo mehr Bedarf als Erzeugung herrscht?</p>
-                <button onclick="showSolution(4)" style="align-self: flex-start;">Lösung anzeigen</button>
                 <div id="solution-4" class="solution-box">
-                    <strong>Lösung:</strong> Wenn wir mittags zu viel Strom haben, speichern wir ihn oder verkaufen ihn ins Ausland. <em>(Hinweis: Die genauen Speichermöglichkeiten lernen wir in Kapitel 3 kennen!)</em> <br><br> Wenn der Bedarf höher ist als die eigene Erzeugung, holen wir den Strom aus den Speichern zurück oder wir importieren ihn aus dem Ausland.
+                    <strong>Lösung:</strong> Viele PV-Anlagen sind nach Süden ausgerichtet, da bei dieser Orientierung über den Tag die meiste Sonneneinstrahlung auf die Module trifft und somit der höchste Gesamtertrag möglich ist. Soll die Erzeugung zeitlich verschoben werden, kann man die Module stärker nach Osten oder Westen ausrichten. Eine Ostausrichtung verlagert die höchste Stromproduktion in den Vormittag, eine Westausrichtung in den Nachmittag. Dadurch kann die Einspeisung besser an Zeiten mit höheren Strompreisen angepasst werden, was den finanziellen Ertrag und die Netzdienlichkeit erhöhen kann.
                 </div>
                 <div class="button-group" id="next-group-4" style="display:none;">
                     <button class="btn-back" onclick="switchTask(3)">Zurück</button>
-                    <button onclick="switchTask(5)">Weiter zu Aufgabe 5</button>
-                </div>
-            </div>
-
-            <div id="task-5" class="task">
-                <h3>Aufgabe 5 (Exkurs)</h3>
-                <p><strong>Frage:</strong> Was könnte man machen, um die PV-Erzeugungskurve ein wenig abzuflachen, damit sich die PV-Stromerzeugung besser über den Tag verteilt?</p>
-                <button onclick="showSolution(5)" style="align-self: flex-start;">Lösung anzeigen</button>
-                <div id="solution-5" class="solution-box">
-                    <strong>Lösung:</strong> Man kann die Photovoltaik-Anlagen in verschiedene Richtungen aufstellen (z. B. nach Osten und Westen statt nur nach Süden). Dadurch fangen sie morgens und abends mehr Sonne ein. <br><br> Außerdem hilft es, die Anlagen weit über Deutschland zu verteilen. Da das Wetter regional unterschiedlich ist, flacht das die extreme Erzeugungsspitze ab. Dieser Wetter-Trick funktioniert bei der Windenergie übrigens noch deutlich besser, da der Wind lokal viel stärker schwankt!
-                </div>
-                <div class="button-group" id="next-group-5" style="display:none;">
-                    <button class="btn-back" onclick="switchTask(4)">Zurück</button>
                     <button class="btn-success" onclick="finishGame()">Aufgabe abschließen</button>
                 </div>
             </div>
 
         </div>
     </div>
-
-    <script>
-        // --- 1. DATEN FÜR DEN GRAPHEN (in GW) ---
-        const labelsHours = Array.from({length: 25}, (_, i) => i); 
-        
-        const lastData = [40, 38, 36, 35, 36, 40, 45, 50, 52, 54, 55, 56, 55, 54, 53, 52, 52, 53, 55, 56, 52, 48, 45, 42, 40];
-        const biomasseData = [4.8, 4.9, 5.0, 5.1, 5.0, 4.9, 4.9, 5.0, 5.1, 5.2, 5.1, 5.0, 4.8, 4.7, 4.8, 4.9, 5.0, 5.1, 5.2, 5.3, 5.1, 5.0, 4.9, 4.8, 4.8];
-        const kohleData = [9, 9, 9, 9, 9, 9, 8, 6, 4, 4, 4, 4, 4, 4, 4, 4, 4, 5, 7, 9, 9, 9, 9, 9, 9];
-        const gasData = [8, 8, 8, 8, 8, 7, 5, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 5, 7, 8, 8, 8, 8, 8];
-        const windData = [17, 17, 16, 16, 15, 14, 12, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 10, 12, 14, 15, 16, 17, 17, 17];
-        const pvData = [0, 0, 0, 0, 0, 0, 0, 12, 28, 42, 53, 59, 61.5, 61.5, 57, 49, 39, 27, 15, 6, 2, 0, 0, 0, 0];
-
-        const datasetLast = { label: 'Last (Strombedarf)', data: lastData, borderColor: '#000000', backgroundColor: 'transparent', type: 'line', fill: false, borderWidth: 3, tension: 0.4, pointRadius: 0, stack: 'demand' };
-        const datasetBiomasse = { label: 'Biomasse', data: biomasseData, borderColor: '#2e7d32', backgroundColor: '#2e7d32', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-        const datasetKohle = { label: 'Kohle (Braun & Stein)', data: kohleData, borderColor: '#4e342e', backgroundColor: '#4e342e', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-        const datasetGas = { label: 'Gaskraftwerke', data: gasData, borderColor: '#f57c00', backgroundColor: '#f57c00', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-        const datasetWind = { label: 'Windenergie', data: windData, borderColor: '#42a5f5', backgroundColor: '#42a5f5', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-        const datasetPV = { label: 'Photovoltaik', data: pvData, borderColor: '#ffca28', backgroundColor: '#ffca28', type: 'line', fill: true, borderWidth: 1, tension: 0.4, pointRadius: 0, stack: 'generation' };
-
-        // --- 2. CHART.JS INITIALISIERUNG ---
-        let ctx = document.getElementById('energyChart').getContext('2d');
-        let stromChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels: labelsHours, datasets: [datasetLast] },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false, 
-                interaction: { mode: 'index', intersect: false },
-                scales: {
-                    x: { title: { display: true, text: 'Uhrzeit (0 - 24 Uhr)' } },
-                    y: { stacked: true, title: { display: true, text: 'Leistung in GW' }, min: 0, max: 120 }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) { return context.dataset.label + ': ' + context.parsed.y + ' GW'; }
-                        }
-                    }
-                }
-            }
-        });
-
-        // --- 3. SPIEL-LOGIK & STEUERUNG ---
-        function startGame() {
-            document.getElementById('welcome-overlay').style.display = 'none';
-            document.getElementById('main-container').style.opacity = '1';
-        }
-
-        // Modifiziert: Zeigt die Abschlussseite ohne Bild
-        function finishGame() {
-            document.getElementById('final-overlay').style.display = 'flex';
-        }
-
-        function showSolution(taskNumber) {
-            document.getElementById('solution-' + taskNumber).style.display = 'block';
-            document.getElementById('next-group-' + taskNumber).style.display = 'flex';
-        }
-
-        function switchTask(taskNumber) {
-            document.querySelectorAll('.task').forEach(t => t.classList.remove('active'));
-            document.getElementById('task-' + taskNumber).classList.add('active');
-        }
-
-        // --- 4. DRAG & DROP & TOUCH LOGIK ---
-        let droppedCount = 0;
-
-        function processDrop(dataId) {
-            let datasetToAdd = null;
-            if (dataId === 'drag-biomasse') datasetToAdd = datasetBiomasse;
-            if (dataId === 'drag-kohle') datasetToAdd = datasetKohle;
-            if (dataId === 'drag-gas') datasetToAdd = datasetGas;
-            if (dataId === 'drag-wind') datasetToAdd = datasetWind;
-            if (dataId === 'drag-pv') datasetToAdd = datasetPV;
-
-            if (datasetToAdd) {
-                stromChart.data.datasets.push(datasetToAdd);
-                stromChart.update();
-                
-                document.getElementById(dataId).style.display = 'none';
-                droppedCount++;
-                
-                if(droppedCount === 5) {
-                    document.getElementById('next-group-1').style.display = 'flex';
-                }
-            }
-        }
-
-        function drag(event) {
-            event.dataTransfer.setData("text", event.target.id);
-        }
-
-        function allowDrop(event) {
-            event.preventDefault(); 
-            document.getElementById('chart-dropzone').classList.add('dragover');
-        }
-
-        function dragLeave(event) {
-            document.getElementById('chart-dropzone').classList.remove('dragover');
-        }
-
-        function drop(event) {
-            event.preventDefault();
-            document.getElementById('chart-dropzone').classList.remove('dragover');
-            let dataId = event.dataTransfer.getData("text");
-            if(dataId.startsWith('drag-')) processDrop(dataId);
-        }
-
-        let draggedElement = null;
-        const dropzone = document.getElementById('chart-dropzone');
-
-        document.querySelectorAll('.drag-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                processDrop(e.target.id);
-            });
-
-            item.addEventListener('touchstart', function(e) {
-                draggedElement = e.target;
-                e.target.style.opacity = '0.5';
-            }, {passive: false});
-
-            item.addEventListener('touchmove', function(e) {
-                e.preventDefault(); 
-                let touch = e.touches[0];
-                let rect = dropzone.getBoundingClientRect();
-                
-                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                    dropzone.classList.add('dragover');
-                } else {
-                    dropzone.classList.remove('dragover');
-                }
-            }, {passive: false});
-
-            item.addEventListener('touchend', function(e) {
-                if (!draggedElement) return;
-                draggedElement.style.opacity = '1';
-                dropzone.classList.remove('dragover');
-                
-                let touch = e.changedTouches[0];
-                let rect = dropzone.getBoundingClientRect();
-                
-                if (touch.clientX >= rect.left && touch.clientX <= rect.right &&
-                    touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
-                    processDrop(draggedElement.id);
-                }
-                draggedElement = null;
-            });
-        });
-    </script>
-</body>
-</html>
