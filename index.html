@@ -11,6 +11,7 @@
             --secondary: #34495e;
             --accent: #3498db;
             --success: #27ae60;
+            --error: #e74c3c;
             --grey: #95a5a6;
             --bg-color: #f4f6f7;
             --box-bg: #ffffff;
@@ -76,6 +77,7 @@
         }
 
         h2 { margin-top: 0; color: var(--primary); font-size: 1.2rem; }
+        h3 { margin-top: 0; }
         
         .task {
             display: none;
@@ -129,6 +131,54 @@
             font-size: 0.95rem;
             line-height: 1.5;
         }
+        
+        .solution-box.error-box {
+            background-color: #fdf2f1;
+            border-left: 4px solid var(--error);
+            color: #c0392b;
+        }
+
+        .mc-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .mc-option {
+            background-color: #f8f9fa;
+            color: var(--primary);
+            border: 2px solid #e9ecef;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .mc-option:hover { border-color: var(--accent); }
+        
+        .mc-option.selected {
+            background-color: #e3f2fd;
+            border-color: var(--accent);
+            color: #1565c0;
+        }
+        
+        .mc-option.correct {
+            background-color: #e8f5e9;
+            border-color: var(--success);
+            color: #2e7d32;
+        }
+        
+        .mc-option.incorrect {
+            background-color: #ffebee;
+            border-color: var(--error);
+            color: #c62828;
+        }
+        
+        .mc-options.locked .mc-option { cursor: default; pointer-events: none; }
 
         .draggable-items {
             display: flex;
@@ -266,14 +316,59 @@
             </div>
 
             <div id="task-3" class="task">
-                <h3>Aufgabe 3 (Exkurs)</h3>
-                <p><strong>Frage:</strong> Mittags bekommen PV-Stromproduzenten häufig wenig Geld für ihren eingespeisten Strom, weil viele Anlagen gleichzeitig einspeisen und den Preis senken. Welche Strategien haben PV-Stromproduzenten, um die maximale Produktion auf den Vormittag oder den Nachmittag zu verschieben?</p>
-                <button onclick="showSolution(3)" style="align-self: flex-start;">Lösung anzeigen</button>
-                <div id="solution-3" class="solution-box">
-                    <strong>Lösung:</strong> Viele PV-Anlagen sind nach Süden ausgerichtet, da bei dieser Orientierung über den Tag die meiste Sonneneinstrahlung auf die Module trifft und somit der höchste Gesamtertrag möglich ist. Soll die Erzeugung zeitlich verschoben werden, kann man die Module stärker nach Osten oder Westen ausrichten. Eine Ostausrichtung verlagert die höchste Stromproduktion in den Vormittag, eine Westausrichtung in den Nachmittag. Dadurch kann die Einspeisung besser an Zeiten mit höheren Strompreisen angepasst werden, was den finanziellen Ertrag und die Netzdienlichkeit erhöhen kann.
+                <h3>Aufgabe 3</h3>
+                <p><strong>Frage:</strong> Welche 4 Anlagetypen haben 2025 in Deutschland den meisten Strom produziert?</p>
+                
+                <div class="mc-options" id="options-task-3">
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="wind">Windkraft</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="pv">Photovoltaik</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="biogas">Biogas</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="wasser">Wasserkraft</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="kohle">Kohle</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="erdgas">Erdgas</div>
                 </div>
+
+                <button id="check-btn-3" onclick="checkTask3()" style="align-self: flex-start;">Überprüfen</button>
+                
+                <div id="solution-3" class="solution-box"></div>
+                
                 <div class="button-group" id="next-group-3" style="display:none;">
                     <button class="btn-back" onclick="switchTask(2)">Zurück</button>
+                    <button onclick="switchTask(4)">Weiter zu Aufgabe 4</button>
+                </div>
+            </div>
+
+            <div id="task-4" class="task">
+                <h3>Aufgabe 4</h3>
+                <p><strong>Frage:</strong> Bei welchen Erzeugern kann man langfristig die Produktionsmenge planen?</p>
+                
+                <div class="mc-options" id="options-task-4">
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="wind">Windkraft</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="pv">Photovoltaik</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="biogas">Biogas</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="kohle">Kohle</div>
+                    <div class="mc-option" onclick="toggleOption(this)" data-val="erdgas">Erdgas</div>
+                </div>
+
+                <button id="check-btn-4" onclick="checkTask4()" style="align-self: flex-start;">Überprüfen</button>
+                
+                <div id="solution-4" class="solution-box"></div>
+                
+                <div class="button-group" id="next-group-4" style="display:none;">
+                    <button class="btn-back" onclick="switchTask(3)">Zurück</button>
+                    <button onclick="switchTask(5)">Weiter zu Aufgabe 5</button>
+                </div>
+            </div>
+
+            <div id="task-5" class="task">
+                <h3>Aufgabe 5 (Exkurs)</h3>
+                <p><strong>Frage:</strong> Mittags bekommen PV-Stromproduzenten häufig wenig Geld für ihren eingespeisten Strom, weil viele Anlagen gleichzeitig einspeisen und den Preis senken. Welche Strategien haben PV-Stromproduzenten, um die maximale Produktion auf den Vormittag oder den Nachmittag zu verschieben?</p>
+                <button onclick="showSolution(5)" style="align-self: flex-start;">Lösung anzeigen</button>
+                <div id="solution-5" class="solution-box">
+                    <strong>Lösung:</strong> Viele PV-Anlagen sind nach Süden ausgerichtet, da bei dieser Orientierung über den Tag die meiste Sonneneinstrahlung auf die Module trifft und somit der höchste Gesamtertrag möglich ist. Soll die Erzeugung zeitlich verschoben werden, kann man die Module stärker nach Osten oder Westen ausrichten. Eine Ostausrichtung verlagert die höchste Stromproduktion in den Vormittag, eine Westausrichtung in den Nachmittag. Dadurch kann die Einspeisung besser an Zeiten mit höheren Strompreisen angepasst werden, was den finanziellen Ertrag und die Netzdienlichkeit erhöhen kann.
+                </div>
+                <div class="button-group" id="next-group-5" style="display:none;">
+                    <button class="btn-back" onclick="switchTask(4)">Zurück</button>
                     <button class="btn-success" onclick="finishGame()">Aufgabe abschließen</button>
                 </div>
             </div>
@@ -285,11 +380,7 @@
         // --- 1. DATEN FÜR DEN GRAPHEN (in GW) ---
         const labelsHours = Array.from({length: 25}, (_, i) => i); 
         
-        // Unveränderte Lastkurve
         const lastData = [40, 38, 36, 35, 36, 40, 45, 50, 52, 54, 55, 56, 55, 54, 53, 52, 52, 53, 55, 56, 52, 48, 45, 42, 40];
-        
-        // Angepasste Erzeugungsdaten: PV nimmt ab 16 Uhr langsamer ab und endet um 21 Uhr.
-        // Wind und Gas steigen ab 16 Uhr flacher an, damit die Summe exakt lastData deckt.
         const biomasseData = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5];
         const kohleData = [10, 10, 10, 10, 10, 10, 10, 10, 9, 8, 8, 8, 8, 8, 8, 8, 8, 9, 10, 10, 10, 10, 10, 10, 10];
         const gasData = [10, 9, 8, 8, 9, 11, 13, 13, 11, 10, 9, 9, 9, 9, 10, 11, 15, 16, 18, 19.5, 18.5, 17, 15, 12, 10];
@@ -346,7 +437,105 @@
             document.getElementById('task-' + taskNumber).classList.add('active');
         }
 
-        // --- 4. DRAG & DROP & TOUCH LOGIK ---
+        // --- MULTIPLE CHOICE LOGIK (AUFGABE 3 & 4) ---
+        function toggleOption(element) {
+            if(element.parentElement.classList.contains('locked')) return;
+            element.classList.toggle('selected');
+        }
+
+        function checkTask3() {
+            const container = document.getElementById('options-task-3');
+            const options = container.querySelectorAll('.mc-option');
+            const correctAnswers = ['wind', 'kohle', 'erdgas', 'pv'];
+            let allCorrect = true;
+            let selectedCount = 0;
+
+            options.forEach(opt => {
+                const val = opt.getAttribute('data-val');
+                const isSelected = opt.classList.contains('selected');
+                const isCorrect = correctAnswers.includes(val);
+
+                if (isSelected) selectedCount++;
+
+                if (isCorrect) {
+                    opt.classList.add('correct');
+                    if (!isSelected) allCorrect = false; 
+                } else {
+                    if (isSelected) {
+                        opt.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                }
+            });
+
+            if (selectedCount !== correctAnswers.length) allCorrect = false;
+
+            container.classList.add('locked');
+            document.getElementById('check-btn-3').style.display = 'none';
+
+            const feedback = document.getElementById('solution-3');
+            feedback.style.display = 'block';
+            
+            const feedbackText = "im Jahr 2025 wurden 30 % des Stroms durch Windkraft, 22,1 % des Stroms durch Kohle, 16,1 % des Stroms durch Erdgas und 16 % des Stroms durch PV erzeugt. Biogas entsprach lediglich 6,2% und Wasserkraft 3,6 % der Stromeinspeisung";
+
+            if (allCorrect) {
+                feedback.innerHTML = "<strong>Richtig</strong> - " + feedbackText;
+                feedback.classList.remove('error-box');
+            } else {
+                feedback.innerHTML = "<strong>Falsch</strong> - " + feedbackText;
+                feedback.classList.add('error-box');
+            }
+
+            document.getElementById('next-group-3').style.display = 'flex';
+        }
+
+        function checkTask4() {
+            const container = document.getElementById('options-task-4');
+            const options = container.querySelectorAll('.mc-option');
+            // Die nicht-wetterabhängigen, langfristig planbaren Erzeuger ohne Wasserkraft:
+            const correctAnswers = ['biogas', 'kohle', 'erdgas'];
+            let allCorrect = true;
+            let selectedCount = 0;
+
+            options.forEach(opt => {
+                const val = opt.getAttribute('data-val');
+                const isSelected = opt.classList.contains('selected');
+                const isCorrect = correctAnswers.includes(val);
+
+                if (isSelected) selectedCount++;
+
+                if (isCorrect) {
+                    opt.classList.add('correct');
+                    if (!isSelected) allCorrect = false; 
+                } else {
+                    if (isSelected) {
+                        opt.classList.add('incorrect');
+                        allCorrect = false;
+                    }
+                }
+            });
+            
+            if (selectedCount !== correctAnswers.length) allCorrect = false;
+
+            container.classList.add('locked');
+            document.getElementById('check-btn-4').style.display = 'none';
+
+            const feedback = document.getElementById('solution-4');
+            feedback.style.display = 'block';
+
+            if (allCorrect) {
+                feedback.innerHTML = "<strong>Richtig</strong> - Wind und PV sind abhängig vom Wetter und sind deshalb nicht langfristig exakt planbar.";
+                feedback.classList.remove('error-box');
+            } else {
+                feedback.innerHTML = "<strong>Falsch</strong> - nur Wind und PV sind abhängig vom Wetter und deshalb nicht langfristig exakt planbar.";
+                feedback.classList.add('error-box');
+            }
+
+            document.getElementById('next-group-4').style.display = 'flex';
+        }
+
+
+        // --- 4. DRAG & DROP & TOUCH LOGIK (AUFGABE 1) ---
         let droppedCount = 0;
 
         function processDrop(dataId) {
